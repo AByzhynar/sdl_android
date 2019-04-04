@@ -4,22 +4,29 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Spannable;
 import android.text.method.ScrollingMovementMethod;
+import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
+
 public class MainActivity extends AppCompatActivity {
 	private static final String TAG = "MainActivity";
 	boolean mBound = false;
-	//private Intent proxyIntent = null;
 	SdlService mService;
 	TextView tvOut;
 	TextView outputText;
+	public static WeakReference<MainActivity> instance;
+
 
 
 	@Override
@@ -29,15 +36,22 @@ public class MainActivity extends AppCompatActivity {
 		tvOut = (TextView) findViewById(R.id.tvOut);
 		outputText = (TextView) findViewById(R.id.terminalOutput);
 		outputText.setMovementMethod(new ScrollingMovementMethod());
-		outputText.append("\n"+"MainActivity::onCreate");
+		Log("MainActivity::onCreate");
 
+		instance = new WeakReference<MainActivity>(this);
 	}
 
+	public void Log (String text) {
+		Log.d(TAG, "MainActivity::Log");
+		outputText = (TextView) findViewById(R.id.terminalOutput);
+		outputText.setMovementMethod(new ScrollingMovementMethod());
+		outputText.append("\n"+ text);
+	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
-		outputText.append("\n" + "MainActivity::onStart");
+		Log("MainActivity::onStart");
 		//If we are connected to a module we want to start our SdlService
 		if(BuildConfig.TRANSPORT.equals("MULTI") || BuildConfig.TRANSPORT.equals("MULTI_HB")) {
 			outputText.append("\n"+"MainActivity::SdlReceiver.queryForConnectedService");
@@ -54,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	protected void onStop() {
-		outputText.append("\n"+"MainActivity::onStop");
+		Log("MainActivity::onStop");
 		super.onStop();
 		// Unbind from the service
 		if (mBound) {
@@ -86,19 +100,24 @@ public class MainActivity extends AppCompatActivity {
 	/** Called when a button is clicked (the button in the layout file attaches to
 	 * this method with the android:onClick attribute) */
 	public void sendPASRequest(View v) {
-		tvOut.setText("Нажата кнопка Publish Chosen Service");
+		tvOut.setText("Button Publish Media Service");
 		if (mBound) {
-			tvOut.setText("Service bound ");
-			// Call a method from the LocalService.
+			// Call a method from the SdlService.
 			// However, if this call were something that might hang, then this request should
 			// occur in a separate thread to avoid slowing down the activity performance.
-			//mService.publishAppServiceRequest();
-
+			mService.publishAppServiceRequest();
 		}
 	}
 
-	public void checkButtonWork(View view) {
-		tvOut.setText("Нажата кнопка OnAppService Data");
+	public void onAppServiceData(View view) {
+		tvOut.setText("Button OnAppService Data");
+		if (mBound) {
+			// Call a method from the SdlService.
+			// However, if this call were something that might hang, then this request should
+			// occur in a separate thread to avoid slowing down the activity performance.
+			mService.onAppServiceDataNotification();
+
+		}
 	}
 
 	/** Defines callbacks for service binding, passed to bindService() */
@@ -107,16 +126,17 @@ public class MainActivity extends AppCompatActivity {
 		@Override
 		public void onServiceConnected(ComponentName className,
 									   IBinder service) {
-			outputText.append("\n"+"MainActivity::OnServiceConnected");
+			Log("MainActivity::OnServiceConnected");
 			// We've bound to SdlService, cast the IBinder and get SdlService instance
-//			SdlService.LocalBinder binder = (SdlService.LocalBinder) service;
-//			mService = binder.getService();
+			SdlService.LocalBinder binder = (SdlService.LocalBinder) service;
+			mService = binder.getService();
 			mBound = true;
+			Log("SDL Service bound ");
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName className) {
-			outputText.append("\n"+"MainActivity::OnServiceDisconnected");
+			Log("MainActivity::OnServiceDisconnected");
 			mBound = false;
 			mService = null;
 		}
