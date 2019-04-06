@@ -38,8 +38,6 @@ public class MainActivity extends AppCompatActivity implements OnItemSelectedLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        outputText = (TextView) findViewById(R.id.terminalOutput);
-        outputText.setMovementMethod(new ScrollingMovementMethod());
         instance = new WeakReference<MainActivity>(this);
         spinner = (Spinner) findViewById(R.id.spinner1);
         // Spinner click listener
@@ -50,9 +48,9 @@ public class MainActivity extends AppCompatActivity implements OnItemSelectedLis
 
     public void Log(String text) {
         Log.d(TAG, "MainActivity::Log");
-//        outputText = (TextView) findViewById(R.id.terminalOutput);
-//        outputText.setMovementMethod(new ScrollingMovementMethod());
-        outputText.append("\n" + text);
+        outputText = (TextView) findViewById(R.id.terminalOutput);
+        outputText.setMovementMethod(new ScrollingMovementMethod());
+        outputText.setText(outputText.getText() + "\n" + text);
     }
 
     public void setAllButtonsEnabled(Boolean state) {
