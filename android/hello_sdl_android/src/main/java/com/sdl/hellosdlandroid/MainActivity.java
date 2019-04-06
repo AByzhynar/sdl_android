@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -39,18 +40,30 @@ public class MainActivity extends AppCompatActivity implements OnItemSelectedLis
         setContentView(R.layout.activity_main);
         outputText = (TextView) findViewById(R.id.terminalOutput);
         outputText.setMovementMethod(new ScrollingMovementMethod());
-        Log("MainActivity::onCreate");
         instance = new WeakReference<MainActivity>(this);
         spinner = (Spinner) findViewById(R.id.spinner1);
         // Spinner click listener
         spinner.setOnItemSelectedListener(this);
+        setAllButtonsEnabled(false);
+        Log("MainActivity::onCreate");
     }
 
     public void Log(String text) {
         Log.d(TAG, "MainActivity::Log");
-        outputText = (TextView) findViewById(R.id.terminalOutput);
-        outputText.setMovementMethod(new ScrollingMovementMethod());
+//        outputText = (TextView) findViewById(R.id.terminalOutput);
+//        outputText.setMovementMethod(new ScrollingMovementMethod());
         outputText.append("\n" + text);
+    }
+
+    public void setAllButtonsEnabled(Boolean state) {
+        Button gasdBtn = (Button) findViewById(R.id.gasd);
+        Button pasiBtn = (Button) findViewById(R.id.pasi);
+        Button sendLocBtn = (Button) findViewById(R.id.sendloc);
+        Button buttonPressBtn = (Button) findViewById(R.id.button_press);
+        gasdBtn.setEnabled(state);
+        pasiBtn.setEnabled(state);
+        sendLocBtn.setEnabled(state);
+        buttonPressBtn.setEnabled(state);
     }
 
     @Override
@@ -191,24 +204,44 @@ public class MainActivity extends AppCompatActivity implements OnItemSelectedLis
      * Called when a button is clicked (the button in the layout file attaches to
      * this method with the android:onClick attribute)
      */
-    public void sendPASRequest(View v) {
+    public void getAppServiceData(View v) {
         if (mBound) {
             // Call a method from the SdlService.
             // However, if this call were something that might hang, then this request should
             // occur in a separate thread to avoid slowing down the activity performance.
-            mService.publishAppServiceRequest();
+            mService.getAppServiceDataRequest();
         }
     }
 
-    public void onAppServiceDataNotification(View view) {
+    public void performAppServiceInteraction(View view) {
         if (mBound) {
             // Call a method from the SdlService.
             // However, if this call were something that might hang, then this request should
             // occur in a separate thread to avoid slowing down the activity performance.
-            mService.onAppServiceDataNotification();
+            mService.performAppServicesInteraction();
 
         }
     }
+
+    public void sendLocation(View view) {
+        if (mBound) {
+            // Call a method from the SdlService.
+            // However, if this call were something that might hang, then this request should
+            // occur in a separate thread to avoid slowing down the activity performance.
+            mService.sendLocationRequest();
+
+        }
+    }
+
+    public void buttonPress(View view) {
+        if (mBound) {
+            // Call a method from the SdlService.
+            // However, if this call were something that might hang, then this request should
+            // occur in a separate thread to avoid slowing down the activity performance.
+            mService.buttonPressRequest();
+        }
+    }
+
 
     /**
      * Defines callbacks for service binding, passed to bindService()

@@ -76,13 +76,13 @@ public class SdlService extends Service {
 
     private static final String TAG = "SDL Service";
 
-    private static final String APP_NAME = "MediaServiceProvider";
+    private static final String APP_NAME = "AppServiceConsumer";
     private String APP_ID = "";
 
     private static final String ICON_FILENAME = "hello_sdl_icon.png";
     private static final String SDL_IMAGE_FILENAME = "sdl_full_image.png";
 
-    private static final String WELCOME_SHOW = "Welcome to MediaServiceProvider";
+    private static final String WELCOME_SHOW = "Welcome to AppServiceConsumer";
     private static final String WELCOME_SPEAK = "Welcome to test app services";
 
     private static final String TEST_COMMAND_NAME = "Test Command";
@@ -98,7 +98,7 @@ public class SdlService extends Service {
     // The default port is 12345
     // The IP is of the machine that is running SDL Core
     private int TCP_PORT = 12345;
-    private String DEV_MACHINE_IP_ADDRESS = null; //"172.30.157.166";
+    private String DEV_MACHINE_IP_ADDRESS = null;
     private AppHMIType appHMIType = AppHMIType.DEFAULT;
 
     // variable to create and call functions of the SyncProxy
@@ -209,6 +209,10 @@ public class SdlService extends Service {
         if (DEV_MACHINE_IP_ADDRESS != null && !DEV_MACHINE_IP_ADDRESS.isEmpty())
             return true;
         return false;
+    }
+
+    public final SdlManager getSdlManager() {
+        return sdlManager;
     }
 
     public void startProxy() {
@@ -338,6 +342,7 @@ public class SdlService extends Service {
             builder.setAppIcon(appIcon);
             sdlManager = builder.build();
             sdlManager.start();
+            MainActivity.instance.get().setAllButtonsEnabled(true);
         }
     }
 
@@ -398,7 +403,7 @@ public class SdlService extends Service {
         });
     }
 
-    private void setPerformAppServicesInteractionRequestListener() {
+    public void setPerformAppServicesInteractionRequestListener() {
         // Perform App Services Interaction Request Listener
         sdlManager.addOnRPCRequestListener(FunctionID.PERFORM_APP_SERVICES_INTERACTION, new OnRPCRequestListener() {
             @Override
@@ -581,7 +586,7 @@ public class SdlService extends Service {
         sdlManager.sendRPC(getFileRequest);
     }
 
-    private void buttonPressRequest() {
+    public void buttonPressRequest() {
         MainActivity.instance.get().Log("\nSDL Service::buttonPressRequest");
         ButtonPress buttonPress = new ButtonPress();
         buttonPress.setButtonPressMode(ButtonPressMode.LONG);
@@ -612,7 +617,7 @@ public class SdlService extends Service {
         }
     }
 
-    private void sendLocationRequest() {
+    public void sendLocationRequest() {
         MainActivity.instance.get().Log("\nSDL Service::sendLocationRequest");
         SendLocation sendLocation = new SendLocation();
         sendLocation.setOnRPCResponseListener(new OnRPCResponseListener() {
@@ -634,7 +639,7 @@ public class SdlService extends Service {
         sdlManager.sendRPC(sendLocation);
     }
 
-    private void performAppServicesInteraction() {
+    public void performAppServicesInteraction() {
         MainActivity.instance.get().Log("\nSDL Service::performAppServicesInteraction Request");
         PerformAppServiceInteraction performAppServiceInteraction = new PerformAppServiceInteraction();
         performAppServiceInteraction.setServiceID(serviceID);
@@ -680,7 +685,7 @@ public class SdlService extends Service {
             public void onError(int correlationId, Result resultCode, String info) {
                 Log.i(TAG, "GASD RESPONSE ERROR: " + info + " result code: " + resultCode.toString() + " CID: " + String.valueOf(correlationId));
             }
-        });
+        });;
         sdlManager.sendRPC(getAppServiceData);
     }
 

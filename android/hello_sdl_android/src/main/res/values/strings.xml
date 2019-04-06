@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">MediaServiceProvider</string>
+    <string name="app_name">AppServiceConsumer</string>
     <string name="app_id_request">Enter/Change App ID: </string>
-    <string name="app_id">8678559</string>
+    <string name="app_id">9679660</string>
     <string name="ip">Enter IP address: </string>
     <string name="tcpinfo">Fill next fields for TCP connection ONLY</string>
     <string name="port">Enter port: </string>
     <integer name="port_number">12345</integer>
     <string name="action_settings">Settings</string>
-    <string name="publish_media_service">Publish MEDIA Service</string>
+    <string name="get_appservice_data">Get AppService Data</string>
+    <string name="send_location">SendLocation RQ</string>
+    <string name="button_press">ButtonPress RQ</string>
     <string name="start_proxy">Start Proxy</string>
     <string name="textview">TextView</string>
-    <string name="onappservice_data">OnAppService Data</string>
+    <string name="perfrom_appservice_interaction">Perform AS Interaction</string>
     <string name="log">Log</string>
     <string name="app_hmi_type_prompt">AppHMIType: </string>
 

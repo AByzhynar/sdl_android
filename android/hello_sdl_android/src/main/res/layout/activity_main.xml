@@ -120,10 +120,10 @@
             android:id="@+id/startProxy"
             android:layout_width="wrap_content"
             android:layout_height="170dp"
+            android:layout_marginLeft="5dp"
             android:layout_toRightOf="@id/appIdInput"
             android:onClick="startProxy"
             android:text="@string/start_proxy"
-            android:layout_marginLeft="5dp"
             android:textSize="10dp" />
 
     </RelativeLayout>
@@ -140,19 +140,39 @@
             android:layout_height="fill_parent">
 
             <Button
-                android:id="@+id/button6"
+                android:id="@+id/gasd"
                 android:layout_width="wrap_content"
                 android:layout_height="35dp"
-                android:onClick="sendPASRequest"
-                android:text="@string/publish_media_service"
+                android:onClick="getAppServiceData"
+                android:text="@string/get_appservice_data"
                 android:textSize="10dp" />
 
             <Button
-                android:id="@+id/button7"
+                android:id="@+id/pasi"
                 android:layout_width="wrap_content"
                 android:layout_height="35dp"
-                android:onClick="onAppServiceDataNotification"
-                android:text="@string/onappservice_data"
+                android:onClick="performAppServiceInteraction"
+                android:text="@string/perfrom_appservice_interaction"
+                android:textSize="10dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <Button
+                android:id="@+id/sendloc"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:onClick="sendLocation"
+                android:text="@string/send_location"
+                android:textSize="10dp" />
+
+            <Button
+                android:id="@+id/button_press"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:onClick="buttonPress"
+                android:text="@string/button_press"
                 android:textSize="10dp" />
         </TableRow>
     </TableLayout>
