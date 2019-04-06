@@ -13,7 +13,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,26 +33,51 @@ public class MainActivity extends AppCompatActivity implements OnItemSelectedLis
     public static WeakReference<MainActivity> instance;
     // Spinner element
     private Spinner spinner;
+//    TextView logs;
+//    // @BindView(R.id.scrollView)
+//    ScrollView scrollView;
+    //private StringBuilder sb;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        outputText = (TextView) findViewById(R.id.terminalOutput);
-        outputText.setMovementMethod(new ScrollingMovementMethod());
-        Log("MainActivity::onCreate");
+//        scrollView = (ScrollView) findViewById(R.id.scrollView);
+//        logs = (TextView) findViewById(R.id.logs);
+        // outputText = (TextView) findViewById(R.id.terminalOutput);
+        // outputText.setMovementMethod(new ScrollingMovementMethod());
         instance = new WeakReference<MainActivity>(this);
         spinner = (Spinner) findViewById(R.id.spinner1);
         // Spinner click listener
         spinner.setOnItemSelectedListener(this);
+        setAllButtonsEnabled(false);
+        //sb = new StringBuilder(10000);
+        Log("MainActivity::onCreate");
     }
+
 
     public void Log(String text) {
         Log.d(TAG, "MainActivity::Log");
         outputText = (TextView) findViewById(R.id.terminalOutput);
         outputText.setMovementMethod(new ScrollingMovementMethod());
-        outputText.append("\n" + text);
+        //outputText.append("\n" + text);
+        outputText.setText(outputText.getText() + "\n" + text);
+    }
+
+
+//    public void Log(String log) {
+//        StringBuilder sb = new StringBuilder();
+//        sb.append(log).append("\n");
+//        logs.append(sb.toString());
+//        scrollView.smoothScrollTo(0, logs.getBottom());
+//    }
+
+    public void setAllButtonsEnabled(Boolean state) {
+        Button pasBtn = (Button) findViewById(R.id.pas);
+        Button apsdBtn = (Button) findViewById(R.id.on_appsvc_data);
+        pasBtn.setEnabled(state);
+        apsdBtn.setEnabled(state);
     }
 
     @Override

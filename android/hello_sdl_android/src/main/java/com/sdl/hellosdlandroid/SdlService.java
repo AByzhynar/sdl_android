@@ -338,6 +338,7 @@ public class SdlService extends Service {
             builder.setAppIcon(appIcon);
             sdlManager = builder.build();
             sdlManager.start();
+            MainActivity.instance.get().setAllButtonsEnabled(true);
         }
     }
 
@@ -635,7 +636,7 @@ public class SdlService extends Service {
     }
 
     private void performAppServicesInteraction() {
-        MainActivity.instance.get().Log("\nSDL Service::performAppServicesInteraction Request");
+        MainActivity.instance.get().Log("SDL Service::performAppServicesInteraction Request");
         PerformAppServiceInteraction performAppServiceInteraction = new PerformAppServiceInteraction();
         performAppServiceInteraction.setServiceID(serviceID);
         performAppServiceInteraction.setRequestServiceActive(true);
