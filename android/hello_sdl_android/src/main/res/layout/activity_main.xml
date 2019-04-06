@@ -9,28 +9,131 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.sdl.hellosdlandroid.MainActivity">
 
-    <TextView
-        android:id="@+id/txtAppName"
-        android:layout_width="349dp"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:text="@string/hello_world"
-        android:textSize="24sp"
-        android:textStyle="bold|italic" />
-
-    <TextView
-        android:id="@+id/tvOut"
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="15dp"
-        android:text="@string/textview"></TextView>
+        android:layout_gravity="center_horizontal">
+
+        <TextView
+            android:id="@+id/txtAppId"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:gravity="left"
+            android:layout_marginTop="15dp"
+            android:text="@string/app_id_request"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold|italic"
+            android:textColor="@color/design_default_color_primary"/>
+
+        <EditText
+            android:id="@+id/appIdInput"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/txtAppId"
+            android:ems="8"
+            android:text="@string/app_id"
+            android:inputType="text"
+            android:textCursorDrawable="@null"></EditText>
+
+        <TextView
+            android:id="@+id/app_hmi_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txtAppId"
+            android:entries="@array/hmi_types_array"
+            android:text="@string/app_hmi_type_prompt"
+            android:prompt="@string/app_hmi_type_prompt"
+            android:textColor="@color/design_default_color_primary"
+            android:textStyle="bold|italic"/>
+
+        <Spinner
+            android:id="@+id/spinner1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txtAppId"
+            android:layout_marginTop="-2dp"
+            android:layout_toRightOf="@id/app_hmi_type"
+            android:entries="@array/hmi_types_array"
+            android:text="@string/app_hmi_type_prompt"
+            android:prompt="@string/app_hmi_type_prompt" />
+
+        <TextView
+            android:id="@+id/tcpInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txtAppId"
+            android:gravity="left"
+            android:layout_marginTop="30dp"
+            android:text="@string/tcpinfo"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold|italic"
+            android:textColor="#F00"/>
+
+        <TextView
+            android:id="@+id/txtIP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tcpInfo"
+            android:gravity="left"
+            android:layout_marginTop="10dp"
+            android:text="@string/ip"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold|italic"
+            android:textColor="@color/design_default_color_primary"/>
+
+        <EditText
+            android:id="@+id/ipInput"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/txtIP"
+            android:layout_marginTop="-5dp"
+            android:layout_below="@id/tcpInfo"
+            android:ems="7"
+            android:inputType="text"
+            android:textCursorDrawable="@null"></EditText>
+
+        <TextView
+            android:id="@+id/txtPort"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txtIP"
+            android:layout_marginTop="15dp"
+            android:gravity="left"
+            android:text="@string/port"
+            android:textStyle="bold|italic"
+            android:textColor="@color/design_default_color_primary"/>
+
+        <EditText
+            android:id="@+id/portInput"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ipInput"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="-10dp"
+            android:layout_toRightOf="@id/txtPort"
+            android:ems="5"
+            android:inputType="number"
+            android:text="@integer/port_number"
+            android:textCursorDrawable="@null"></EditText>
+
+        <Button
+            android:id="@+id/startProxy"
+            android:layout_width="wrap_content"
+            android:layout_height="170dp"
+            android:layout_toRightOf="@id/appIdInput"
+            android:onClick="startProxy"
+            android:text="@string/start_proxy"
+            android:layout_marginLeft="5dp"
+            android:textSize="10dp" />
+
+    </RelativeLayout>
+
 
     <TableLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingTop="10dp">
 
         <TableRow
             android:layout_width="fill_parent"
@@ -39,16 +142,18 @@
             <Button
                 android:id="@+id/button6"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="35dp"
                 android:onClick="sendPASRequest"
-                android:text="@string/publish_media_service" />
+                android:text="@string/publish_media_service"
+                android:textSize="10dp" />
 
             <Button
                 android:id="@+id/button7"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onAppServiceData"
-                android:text="@string/onappservice_data" />
+                android:layout_height="35dp"
+                android:onClick="onAppServiceDataNotification"
+                android:text="@string/onappservice_data"
+                android:textSize="10dp" />
         </TableRow>
     </TableLayout>
 

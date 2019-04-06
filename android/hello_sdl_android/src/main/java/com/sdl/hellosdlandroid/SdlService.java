@@ -29,6 +29,7 @@ import com.smartdevicelink.proxy.rpc.AppServiceData;
 import com.smartdevicelink.proxy.rpc.AppServiceManifest;
 import com.smartdevicelink.proxy.rpc.AppServiceRecord;
 import com.smartdevicelink.proxy.rpc.ButtonPress;
+import com.smartdevicelink.proxy.rpc.ButtonPressResponse;
 import com.smartdevicelink.proxy.rpc.GetAppServiceData;
 import com.smartdevicelink.proxy.rpc.GetAppServiceDataResponse;
 import com.smartdevicelink.proxy.rpc.GetFile;
@@ -44,6 +45,7 @@ import com.smartdevicelink.proxy.rpc.PerformAppServiceInteractionResponse;
 import com.smartdevicelink.proxy.rpc.PublishAppService;
 import com.smartdevicelink.proxy.rpc.PublishAppServiceResponse;
 import com.smartdevicelink.proxy.rpc.SendLocation;
+import com.smartdevicelink.proxy.rpc.SendLocationResponse;
 import com.smartdevicelink.proxy.rpc.Speak;
 import com.smartdevicelink.proxy.rpc.enums.AppHMIType;
 import com.smartdevicelink.proxy.rpc.enums.AppServiceType;
@@ -59,6 +61,7 @@ import com.smartdevicelink.proxy.rpc.listeners.OnRPCResponseListener;
 import com.smartdevicelink.transport.BaseTransportConfig;
 import com.smartdevicelink.transport.MultiplexTransportConfig;
 import com.smartdevicelink.transport.TCPTransportConfig;
+import com.smartdevicelink.util.DebugTool;
 
 import org.json.JSONException;
 
@@ -66,6 +69,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Vector;
 
 public class SdlService extends Service {
@@ -73,7 +77,7 @@ public class SdlService extends Service {
     private static final String TAG = "SDL Service";
 
     private static final String APP_NAME = "MediaServiceProvider";
-    private static final String APP_ID = "8678559";
+    private String APP_ID = "";
 
     private static final String ICON_FILENAME = "hello_sdl_icon.png";
     private static final String SDL_IMAGE_FILENAME = "sdl_full_image.png";
@@ -93,8 +97,9 @@ public class SdlService extends Service {
     // TCP/IP transport config
     // The default port is 12345
     // The IP is of the machine that is running SDL Core
-    private static final int TCP_PORT = 12345;
-    private static final String DEV_MACHINE_IP_ADDRESS = "172.30.157.166";
+    private int TCP_PORT = 12345;
+    private String DEV_MACHINE_IP_ADDRESS = null; //"172.30.157.166";
+    private AppHMIType appHMIType = AppHMIType.DEFAULT;
 
     // variable to create and call functions of the SyncProxy
     private SdlManager sdlManager = null;
@@ -121,11 +126,11 @@ public class SdlService extends Service {
     public void onCreate() {
         Log.d(TAG, "onCreate");
         super.onCreate();
+        mBinder = new LocalBinder();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             enterForeground();
         }
-        mBinder = new LocalBinder();
         MainActivity.instance.get().Log("SDL Service::onCreate");
     }
 
@@ -149,7 +154,7 @@ public class SdlService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         MainActivity.instance.get().Log("SDL Service::onStartCommand");
-        startProxy();
+        //startProxy();
         return START_STICKY;
     }
 
@@ -167,14 +172,74 @@ public class SdlService extends Service {
         super.onDestroy();
     }
 
-    private void startProxy() {
+    private void setAppID(String appID) {
+        APP_ID = appID;
+    }
+
+    private String getAppID() {
+        return APP_ID;
+    }
+
+    private void setIP(String ipAddress) {
+        DEV_MACHINE_IP_ADDRESS = ipAddress;
+    }
+
+
+    private final String getIP() {
+        return DEV_MACHINE_IP_ADDRESS;
+    }
+
+    private void setPort(int ipPort) {
+        TCP_PORT = ipPort;
+    }
+
+    private void setAppHMIType(AppHMIType type) {
+        appHMIType = type;
+    }
+
+    private AppHMIType getAppHMIType() {
+        return appHMIType;
+    }
+
+    public String transportType() {
+        return BuildConfig.TRANSPORT;
+    }
+
+    public boolean isIPEntered() {
+        if (DEV_MACHINE_IP_ADDRESS != null && !DEV_MACHINE_IP_ADDRESS.isEmpty())
+            return true;
+        return false;
+    }
+
+    public void startProxy() {
         MainActivity.instance.get().Log("SDL Service::startProxy");
+
+        final String appId = MainActivity.instance.get().getAppID();
+        setAppID(appId);
+
+        if (false == MainActivity.instance.get().isAppIDEntered()) {
+            MainActivity.instance.get().Log("\nSDL Service::AppID is not entered !!!");
+            MainActivity.instance.get().Log("\nRestart Application and Enter AppID!!!");
+            return;
+        }
+
+        final String ipAddress = MainActivity.instance.get().getIPAddress();
+        setIP(ipAddress);
+        if ("TCP" == transportType() && !isIPEntered()) {
+            MainActivity.instance.get().Log("\nSDL Service:: IP address is not entered !!!");
+            MainActivity.instance.get().Log("\nRestart Application and Enter IP!!!");
+            return;
+        }
 
         // This logic is to select the correct transport and security levels defined in the selected build flavor
         // Build flavors are selected by the "build variants" tab typically located in the bottom left of Android Studio
         // Typically in your app, you will only set one of these.
         if (sdlManager == null) {
             Log.i(TAG, "Starting SDL Proxy");
+            // Enable DebugTool for debug build type
+            if (BuildConfig.DEBUG) {
+                DebugTool.enableDebugTool();
+            }
             BaseTransportConfig transport = null;
             if (BuildConfig.TRANSPORT.equals("MULTI")) {
                 int securityLevel;
@@ -197,8 +262,10 @@ public class SdlService extends Service {
             }
 
             // The app type to be used
+            AppHMIType typeToSet = MainActivity.instance.get().getAppHMIType();
+            setAppHMIType(typeToSet);
             Vector<AppHMIType> appType = new Vector<>();
-            appType.add(AppHMIType.MEDIA);
+            appType.add(typeToSet);
 
             // The manager listener helps you know when certain events that pertain to the SDL Manager happen
             // Here we will listen for ON_HMI_STATUS and ON_COMMAND notifications
@@ -214,11 +281,6 @@ public class SdlService extends Service {
                                 sendCommands();
                                 performWelcomeSpeak();
                                 performWelcomeShow();
-                                //publishAppServiceRequest();
-                                //getAppServiceDataRequest();
-                                //performAppServicesInteraction();
-                                //sendLocationRequest();
-                                //buttonPressRequest();
                             }
                         }
                     });
@@ -254,87 +316,6 @@ public class SdlService extends Service {
                             }
                         }
                     });
-
-                    // On App Service Data Notification Listener
-                    sdlManager.addOnRPCNotificationListener(FunctionID.ON_APP_SERVICE_DATA, new OnRPCNotificationListener() {
-                        @Override
-                        public void onNotified(RPCNotification notification) {
-                            OnAppServiceData command = (OnAppServiceData) notification;
-                            try {
-                                Log.i(TAG, "OASD NOTIFICATION: " + command.serializeJSON().toString());
-                                MainActivity.instance.get().Log("\nOASD NOTIFICATION:\n " + command.serializeJSON().toString());
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-
-                    // Perform App Services Interaction Request Listener
-                    sdlManager.addOnRPCRequestListener(FunctionID.PERFORM_APP_SERVICES_INTERACTION, new OnRPCRequestListener() {
-                        @Override
-                        public void onRequest(RPCRequest request) {
-                            PerformAppServiceInteraction performAppServiceInteraction = (PerformAppServiceInteraction) request;
-                            try {
-                                Log.i(TAG, "PASI REQUEST: " + performAppServiceInteraction.serializeJSON().toString());
-                                MainActivity.instance.get().Log("\nSDL Service::Incoming PASI REQUEST:\n " + performAppServiceInteraction.serializeJSON().toString());
-                                serviceID = performAppServiceInteraction.getServiceID();
-                                Log.i(TAG, "Service ID: " + serviceID);
-                                PerformAppServiceInteractionResponse performAppServiceInteractionResponse = new PerformAppServiceInteractionResponse();
-                                performAppServiceInteractionResponse.setServiceSpecificResult("ITS LIT");
-                                performAppServiceInteractionResponse.setCorrelationID(performAppServiceInteraction.getCorrelationID());
-                                performAppServiceInteractionResponse.setInfo("WHO DAT");
-                                performAppServiceInteractionResponse.setSuccess(true);
-                                performAppServiceInteractionResponse.setResultCode(Result.SUCCESS);
-                                sdlManager.sendRPC(performAppServiceInteractionResponse);
-                                Log.i(TAG, "PASI RESPONSE: " + performAppServiceInteractionResponse.serializeJSON().toString());
-                                MainActivity.instance.get().Log("\nSDL Service::PASI RESPONSE:\n " + performAppServiceInteractionResponse.serializeJSON().toString());
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-
-                    // Get App Service Data Request Listener
-                    sdlManager.addOnRPCRequestListener(FunctionID.GET_APP_SERVICE_DATA, new OnRPCRequestListener() {
-                        @Override
-                        public void onRequest(RPCRequest request) {
-                            GetAppServiceData getAppServiceData = (GetAppServiceData) request;
-                            try {
-                                Log.i(TAG, "GASD REQUEST: " + getAppServiceData.serializeJSON().toString());
-                                MainActivity.instance.get().Log("\nSDL Service::Incoming GetAppServiceData Request: " + getAppServiceData.serializeJSON().toString());
-                                // prepare response
-                                Log.i(TAG, "Service ID: " + serviceID);
-                                MainActivity.instance.get().Log("Service ID: " + serviceID);
-
-                                Boolean subscribe = getAppServiceData.getSubscribe();
-
-                                MediaServiceData mediaServiceData = new MediaServiceData();
-                                mediaServiceData.setMediaTitle("Yaba A DABA DOO");
-
-                                AppServiceData appServiceData = new AppServiceData();
-                                appServiceData.setServiceType(AppServiceType.MEDIA.toString());
-                                appServiceData.setServiceID(serviceID);
-                                appServiceData.setMediaServiceData(mediaServiceData);
-
-                                GetAppServiceDataResponse getAppServiceDataResponse = new GetAppServiceDataResponse();
-                                getAppServiceDataResponse.setSuccess(true);
-                                getAppServiceDataResponse.setCorrelationID(getAppServiceData.getCorrelationID());
-                                getAppServiceDataResponse.setResultCode(Result.SUCCESS);
-                                getAppServiceDataResponse.setServiceData(appServiceData);
-
-                                sdlManager.sendRPC(getAppServiceDataResponse);
-
-                                if (subscribe != null && subscribe) {
-                                    onAppServiceDataNotification();
-                                }
-                                Log.i(TAG, "GASD RESPONSE: " + getAppServiceDataResponse.serializeJSON().toString());
-                                MainActivity.instance.get().Log("\nGASD Response:\n " + getAppServiceDataResponse.serializeJSON().toString());
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
                 }
 
                 @Override
@@ -358,6 +339,157 @@ public class SdlService extends Service {
             sdlManager = builder.build();
             sdlManager.start();
         }
+    }
+
+
+    private void setSendLocationRequestListener() {
+        MainActivity.instance.get().Log("SendLocation Request Listener is SET");
+        // SendLocation Request Listener
+        sdlManager.addOnRPCRequestListener(FunctionID.SEND_LOCATION, new OnRPCRequestListener() {
+            @Override
+            public void onRequest(RPCRequest request) {
+                SendLocation sendLocationRequest = (SendLocation) request;
+                try {
+                    Log.i(TAG, "SL REQUEST: " + sendLocationRequest.serializeJSON().toString());
+                    MainActivity.instance.get().Log("\nSDL Service::Incoming SendLocation Request: " + sendLocationRequest.serializeJSON().toString());
+
+                    // prepare response
+                    SendLocationResponse sendLocationResponse = new SendLocationResponse();
+                    sendLocationResponse.setSuccess(true);
+                    sendLocationResponse.setCorrelationID(sendLocationRequest.getCorrelationID());
+                    sendLocationResponse.setResultCode(Result.SUCCESS);
+
+                    sdlManager.sendRPC(sendLocationResponse);
+                    Log.i(TAG, "SL RESPONSE: " + sendLocationResponse.serializeJSON().toString());
+                    MainActivity.instance.get().Log("\nSL Response:\n " + sendLocationResponse.serializeJSON().toString());
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void setButtoPressRequestListener() {
+        MainActivity.instance.get().Log("ButtonPress Request Listener is SET");
+        // SendLocation Request Listener
+        sdlManager.addOnRPCRequestListener(FunctionID.BUTTON_PRESS, new OnRPCRequestListener() {
+            @Override
+            public void onRequest(RPCRequest request) {
+                ButtonPress buttonPressRequest = (ButtonPress) request;
+                try {
+                    Log.i(TAG, "BP REQUEST: " + buttonPressRequest.serializeJSON().toString());
+                    MainActivity.instance.get().Log("\nSDL Service::Incoming ButtonPress Request: " + buttonPressRequest.serializeJSON().toString());
+
+                    // prepare response
+                    ButtonPressResponse buttonPressResponse = new ButtonPressResponse();
+                    buttonPressResponse.setSuccess(true);
+                    buttonPressResponse.setCorrelationID(buttonPressRequest.getCorrelationID());
+                    buttonPressResponse.setResultCode(Result.SUCCESS);
+
+                    sdlManager.sendRPC(buttonPressResponse);
+                    Log.i(TAG, "BP RESPONSE: " + buttonPressResponse.serializeJSON().toString());
+                    MainActivity.instance.get().Log("\nBP Response:\n " + buttonPressResponse.serializeJSON().toString());
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void setPerformAppServicesInteractionRequestListener() {
+        // Perform App Services Interaction Request Listener
+        sdlManager.addOnRPCRequestListener(FunctionID.PERFORM_APP_SERVICES_INTERACTION, new OnRPCRequestListener() {
+            @Override
+            public void onRequest(RPCRequest request) {
+                PerformAppServiceInteraction performAppServiceInteraction = (PerformAppServiceInteraction) request;
+                MainActivity.instance.get().Log("Perform App Services Interaction Request Listener is SET");
+                try {
+                    Log.i(TAG, "PASI REQUEST: " + performAppServiceInteraction.serializeJSON().toString());
+                    MainActivity.instance.get().Log("\nSDL Service::Incoming PASI REQUEST:\n " + performAppServiceInteraction.serializeJSON().toString());
+                    serviceID = performAppServiceInteraction.getServiceID();
+                    Log.i(TAG, "Service ID: " + serviceID);
+                    PerformAppServiceInteractionResponse performAppServiceInteractionResponse = new PerformAppServiceInteractionResponse();
+                    performAppServiceInteractionResponse.setServiceSpecificResult("ITS LIT");
+                    performAppServiceInteractionResponse.setCorrelationID(performAppServiceInteraction.getCorrelationID());
+                    performAppServiceInteractionResponse.setInfo("WHO DAT");
+                    performAppServiceInteractionResponse.setSuccess(true);
+                    performAppServiceInteractionResponse.setResultCode(Result.SUCCESS);
+                    sdlManager.sendRPC(performAppServiceInteractionResponse);
+                    Log.i(TAG, "PASI RESPONSE: " + performAppServiceInteractionResponse.serializeJSON().toString());
+                    MainActivity.instance.get().Log("\nSDL Service::PASI RESPONSE:\n " + performAppServiceInteractionResponse.serializeJSON().toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void setOnAppServiceDataNotificationListener() {
+        // On App Service Data Notification Listener
+        MainActivity.instance.get().Log("OASD Notification Listener is SET");
+        sdlManager.addOnRPCNotificationListener(FunctionID.ON_APP_SERVICE_DATA, new OnRPCNotificationListener() {
+            @Override
+            public void onNotified(RPCNotification notification) {
+                OnAppServiceData command = (OnAppServiceData) notification;
+                MainActivity.instance.get().Log("OnAppServiceData Notification Listener is set");
+
+                try {
+                    Log.i(TAG, "OASD NOTIFICATION: " + command.serializeJSON().toString());
+                    MainActivity.instance.get().Log("\nOASD NOTIFICATION:\n " + command.serializeJSON().toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void setGASDRequestListener() {
+        MainActivity.instance.get().Log("GASD Request Listener is SET");
+        // Get App Service Data Request Listener
+        sdlManager.addOnRPCRequestListener(FunctionID.GET_APP_SERVICE_DATA, new OnRPCRequestListener() {
+            @Override
+            public void onRequest(RPCRequest request) {
+                GetAppServiceData getAppServiceData = (GetAppServiceData) request;
+                MainActivity.instance.get().Log("Get App Service Data Request Listener is SET");
+
+                try {
+                    Log.i(TAG, "GASD REQUEST: " + getAppServiceData.serializeJSON().toString());
+                    MainActivity.instance.get().Log("\nSDL Service::Incoming GetAppServiceData Request: " + getAppServiceData.serializeJSON().toString());
+                    // prepare response
+                    Log.i(TAG, "Service ID: " + serviceID);
+                    MainActivity.instance.get().Log("Service ID: " + serviceID);
+
+                    Boolean subscribe = getAppServiceData.getSubscribe();
+
+                    MediaServiceData mediaServiceData = new MediaServiceData();
+                    mediaServiceData.setMediaTitle("Yaba A DABA DOO");
+
+                    AppServiceData appServiceData = new AppServiceData();
+                    appServiceData.setServiceType(AppServiceType.MEDIA.toString());
+                    appServiceData.setServiceID(serviceID);
+                    appServiceData.setMediaServiceData(mediaServiceData);
+
+                    GetAppServiceDataResponse getAppServiceDataResponse = new GetAppServiceDataResponse();
+                    getAppServiceDataResponse.setSuccess(true);
+                    getAppServiceDataResponse.setCorrelationID(getAppServiceData.getCorrelationID());
+                    getAppServiceDataResponse.setResultCode(Result.SUCCESS);
+                    getAppServiceDataResponse.setServiceData(appServiceData);
+
+                    sdlManager.sendRPC(getAppServiceDataResponse);
+
+                    if (subscribe != null && subscribe) {
+                        onAppServiceDataNotification();
+                    }
+                    Log.i(TAG, "GASD RESPONSE: " + getAppServiceDataResponse.serializeJSON().toString());
+                    MainActivity.instance.get().Log("\nGASD Response:\n " + getAppServiceDataResponse.serializeJSON().toString());
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     public void publishAppServiceRequest() {
@@ -393,6 +525,10 @@ public class SdlService extends Service {
         });
         sdlManager.sendRPC(pas);
         Log.i(TAG, "SENT PUBLISH APP SERVICE");
+        setGASDRequestListener();
+        setSendLocationRequestListener();
+        setButtoPressRequestListener();
+        setPerformAppServicesInteractionRequestListener();
     }
 
     public void onAppServiceDataNotification() {
@@ -410,6 +546,7 @@ public class SdlService extends Service {
 
         try {
             Log.i(TAG, "Sent OASD Notification: " + onAppServiceData.serializeJSON().toString());
+            MainActivity.instance.get().Log(onAppServiceData.serializeJSON().toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -500,9 +637,9 @@ public class SdlService extends Service {
     private void performAppServicesInteraction() {
         MainActivity.instance.get().Log("\nSDL Service::performAppServicesInteraction Request");
         PerformAppServiceInteraction performAppServiceInteraction = new PerformAppServiceInteraction();
-        performAppServiceInteraction.setServiceID("0a1da40f7ecaa2c7f798ba43be640aaee2da82e6da452b9dbdfc21a1a89babf7");
+        performAppServiceInteraction.setServiceID(serviceID);
         performAppServiceInteraction.setRequestServiceActive(true);
-        performAppServiceInteraction.setOriginApp("TESTTTT");
+        performAppServiceInteraction.setOriginApp(getAppID());
         performAppServiceInteraction.setServiceUri("test");
         performAppServiceInteraction.setOnRPCResponseListener(new OnRPCResponseListener() {
             @Override
