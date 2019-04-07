@@ -5,7 +5,7 @@
     <string name="app_id_request">Enter/Change App ID: </string>
     <string name="app_id">8678559</string>
     <string name="ip">Enter IP address: </string>
-    <string name="tcpinfo">Fill next fields for TCP connection ONLY</string>
+    <string name="tcpinfo">Fill next fields</string>
     <string name="port">Enter port: </string>
     <integer name="port_number">12345</integer>
     <string name="action_settings">Settings</string>

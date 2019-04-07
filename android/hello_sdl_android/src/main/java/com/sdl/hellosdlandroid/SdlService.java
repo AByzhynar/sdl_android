@@ -68,8 +68,10 @@ import org.json.JSONException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 public class SdlService extends Service {
@@ -289,10 +291,11 @@ public class SdlService extends Service {
                     sdlManager.addOnRPCNotificationListener(FunctionID.ON_SYSTEM_CAPABILITY_UPDATED, new OnRPCNotificationListener() {
                         @Override
                         public void onNotified(RPCNotification notification) {
+                            MainActivity.instance.get().Log("System Capabilities Listener is SET");
                             OnSystemCapabilityUpdated command = (OnSystemCapabilityUpdated) notification;
                             try {
-                                Log.i(TAG, "ON SYS CAP UPDATED: " + command.serializeJSON().toString());
-                                MainActivity.instance.get().Log("\nON SYS CAP UPDATED:\n");
+                                Log.i(TAG, "ON System Capabilities UPDATED: " + command.serializeJSON().toString());
+                                MainActivity.instance.get().Log("\nOnSystemCapabilityUpdated:\n");
                                 MainActivity.instance.get().Log(command.serializeJSON().toString());
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -339,7 +342,19 @@ public class SdlService extends Service {
             sdlManager = builder.build();
             sdlManager.start();
             MainActivity.instance.get().setAllButtonsEnabled(true);
+            setServicesProviderListeners();
         }
+    }
+
+    private void setServicesConsumerListeners() {
+        setOnAppServiceDataNotificationListener();
+    }
+
+    private void setServicesProviderListeners() {
+        setGASDRequestListener();
+        setSendLocationRequestListener();
+        setButtoPressRequestListener();
+        setPerformAppServicesInteractionRequestListener();
     }
 
 
@@ -352,7 +367,7 @@ public class SdlService extends Service {
                 SendLocation sendLocationRequest = (SendLocation) request;
                 try {
                     Log.i(TAG, "SL REQUEST: " + sendLocationRequest.serializeJSON().toString());
-                    MainActivity.instance.get().Log("\nSDL Service::Incoming SendLocation Request: " + sendLocationRequest.serializeJSON().toString());
+                    MainActivity.instance.get().Log("SDL Service::Incoming SendLocation Request: " + sendLocationRequest.serializeJSON().toString());
 
                     // prepare response
                     SendLocationResponse sendLocationResponse = new SendLocationResponse();
@@ -362,7 +377,7 @@ public class SdlService extends Service {
 
                     sdlManager.sendRPC(sendLocationResponse);
                     Log.i(TAG, "SL RESPONSE: " + sendLocationResponse.serializeJSON().toString());
-                    MainActivity.instance.get().Log("\nSL Response:\n " + sendLocationResponse.serializeJSON().toString());
+                    MainActivity.instance.get().Log("SL Response:\n " + sendLocationResponse.serializeJSON().toString());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -499,6 +514,12 @@ public class SdlService extends Service {
         asm.setServiceType(AppServiceType.MEDIA.toString());
         asm.setServiceName("MediaServiceProvider");
         asm.setAllowAppConsumers(true);
+        List<Integer> handled_rpcs_list = new ArrayList<>();
+        // Adding SendLocation RPC id to be handled by Service
+        handled_rpcs_list.add(39);
+        // Adding ButtonPress RPC id to be handled by Service
+        handled_rpcs_list.add(41);
+        asm.setHandledRpcs(handled_rpcs_list);
 
         PublishAppService pas = new PublishAppService();
         pas.setAppServiceManifest(asm);
@@ -526,10 +547,6 @@ public class SdlService extends Service {
         });
         sdlManager.sendRPC(pas);
         Log.i(TAG, "SENT PUBLISH APP SERVICE");
-        setGASDRequestListener();
-        setSendLocationRequestListener();
-        setButtoPressRequestListener();
-        setPerformAppServicesInteractionRequestListener();
     }
 
     public void onAppServiceDataNotification() {
@@ -616,6 +633,10 @@ public class SdlService extends Service {
     private void sendLocationRequest() {
         MainActivity.instance.get().Log("\nSDL Service::sendLocationRequest");
         SendLocation sendLocation = new SendLocation();
+        // set test coordinates
+        sendLocation.setLongitudeDegrees(-77.0364);
+        sendLocation.setLatitudeDegrees(38.8951);
+
         sendLocation.setOnRPCResponseListener(new OnRPCResponseListener() {
             @Override
             public void onResponse(int correlationId, RPCResponse response) {
