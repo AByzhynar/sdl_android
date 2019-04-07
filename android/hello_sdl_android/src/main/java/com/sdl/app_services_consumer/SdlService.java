@@ -1,4 +1,4 @@
-package com.sdl.hellosdlandroid;
+package com.sdl.app_services_consumer;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;

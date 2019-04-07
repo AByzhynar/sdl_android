@@ -1,4 +1,4 @@
-package com.sdl.hellosdlandroid;
+package com.sdl.app_services_consumer;
 
 import android.content.Context;
 import android.content.Intent;
@@ -30,7 +30,7 @@ public class SdlReceiver  extends SdlBroadcastReceiver {
 
 	@Override
 	public Class<? extends SdlRouterService> defineLocalSdlRouterClass() {
-		return com.sdl.hellosdlandroid.SdlRouterService.class;
+		return com.sdl.app_services_consumer.SdlRouterService.class;
 	}
 
 	@Override
