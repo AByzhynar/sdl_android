@@ -18,22 +18,25 @@
             android:id="@+id/txtAppId"
             android:layout_width="wrap_content"
             android:layout_height="35dp"
-            android:gravity="left"
             android:layout_marginTop="15dp"
+            android:gravity="left"
             android:text="@string/app_id_request"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textStyle="bold|italic"
-            android:textColor="@color/design_default_color_primary"/>
+            android:textColor="@color/design_default_color_primary"
+            android:textSize="12dp"
+            android:textStyle="bold|italic" />
 
         <EditText
             android:id="@+id/appIdInput"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:layout_toRightOf="@id/txtAppId"
-            android:ems="8"
-            android:text="@string/app_id"
+            android:ems="5"
             android:inputType="text"
-            android:textCursorDrawable="@null"></EditText>
+            android:text="@string/app_id"
+            android:textCursorDrawable="@null"
+            android:textSize="12dp"></EditText>
 
         <TextView
             android:id="@+id/app_hmi_type"
@@ -41,67 +44,76 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/txtAppId"
             android:entries="@array/hmi_types_array"
-            android:text="@string/app_hmi_type_prompt"
             android:prompt="@string/app_hmi_type_prompt"
+            android:text="@string/app_hmi_type_prompt"
             android:textColor="@color/design_default_color_primary"
-            android:textStyle="bold|italic"/>
+            android:textSize="12dp"
+            android:textStyle="bold|italic" />
 
         <Spinner
             android:id="@+id/spinner1"
-            android:layout_width="match_parent"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/txtAppId"
-            android:layout_marginTop="-2dp"
+            android:layout_marginTop="-4dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginRight="0dp"
             android:layout_toRightOf="@id/app_hmi_type"
+            android:dropDownWidth="wrap_content"
             android:entries="@array/hmi_types_array"
+            android:prompt="@string/app_hmi_type_prompt"
             android:text="@string/app_hmi_type_prompt"
-            android:prompt="@string/app_hmi_type_prompt" />
+            android:textSize="12dp" />
 
         <TextView
             android:id="@+id/tcpInfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/txtAppId"
-            android:gravity="left"
             android:layout_marginTop="30dp"
+            android:gravity="left"
             android:text="@string/tcpinfo"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textStyle="bold|italic"
-            android:textColor="#F00"/>
+            android:textColor="#F00"
+            android:textSize="12dp"
+            android:textStyle="bold|italic" />
 
         <TextView
             android:id="@+id/txtIP"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tcpInfo"
-            android:gravity="left"
             android:layout_marginTop="10dp"
+            android:gravity="left"
             android:text="@string/ip"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textStyle="bold|italic"
-            android:textColor="@color/design_default_color_primary"/>
+            android:textColor="@color/design_default_color_primary"
+            android:textSize="12dp"
+            android:textStyle="bold|italic" />
 
         <EditText
             android:id="@+id/ipInput"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/txtIP"
-            android:layout_marginTop="-5dp"
             android:layout_below="@id/tcpInfo"
+            android:layout_marginTop="-1dp"
+            android:layout_toRightOf="@id/txtIP"
             android:ems="7"
             android:inputType="text"
-            android:textCursorDrawable="@null"></EditText>
+            android:textCursorDrawable="@null"
+            android:textSize="12dp"></EditText>
 
         <TextView
             android:id="@+id/txtPort"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/txtIP"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="20dp"
             android:gravity="left"
             android:text="@string/port"
-            android:textStyle="bold|italic"
-            android:textColor="@color/design_default_color_primary"/>
+            android:textColor="@color/design_default_color_primary"
+            android:textSize="12dp"
+            android:textStyle="bold|italic" />
 
         <EditText
             android:id="@+id/portInput"
@@ -109,19 +121,20 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/ipInput"
             android:layout_marginLeft="2dp"
-            android:layout_marginTop="-10dp"
+            android:layout_marginTop="-1dp"
             android:layout_toRightOf="@id/txtPort"
-            android:ems="5"
+            android:ems="4"
             android:inputType="number"
             android:text="@integer/port_number"
-            android:textCursorDrawable="@null"></EditText>
+            android:textCursorDrawable="@null"
+            android:textSize="12dp"></EditText>
 
         <Button
             android:id="@+id/startProxy"
             android:layout_width="wrap_content"
             android:layout_height="170dp"
             android:layout_marginLeft="5dp"
-            android:layout_toRightOf="@id/appIdInput"
+            android:layout_toRightOf="@id/spinner1"
             android:onClick="startProxy"
             android:text="@string/start_proxy"
             android:textSize="10dp" />

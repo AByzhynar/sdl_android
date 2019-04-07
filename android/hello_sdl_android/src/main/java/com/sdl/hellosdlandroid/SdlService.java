@@ -343,7 +343,21 @@ public class SdlService extends Service {
             sdlManager = builder.build();
             sdlManager.start();
             MainActivity.instance.get().setAllButtonsEnabled(true);
+            // Logic related to Services Consumer
+            setServicesConsumerListeners();
         }
+    }
+
+
+    private void setServicesConsumerListeners() {
+        setOnAppServiceDataNotificationListener();
+    }
+
+    private void setServicesProviderListeners() {
+        setGASDRequestListener();
+        setSendLocationRequestListener();
+        setButtoPressRequestListener();
+        setPerformAppServicesInteractionRequestListener();
     }
 
 
