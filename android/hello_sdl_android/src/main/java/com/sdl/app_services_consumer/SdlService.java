@@ -132,7 +132,7 @@ public class SdlService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             enterForeground();
         }
-        MainActivity.instance.get().Log("SDL Service::onCreate");
+        MainActivity.instance.get().Log("onCreate");
     }
 
     // Helper method to let the service enter foreground mode
@@ -154,14 +154,14 @@ public class SdlService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        MainActivity.instance.get().Log("SDL Service::onStartCommand");
+        MainActivity.instance.get().Log("onStartCommand");
         //startProxy();
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        MainActivity.instance.get().Log("SDL Service::onDestroy");
+        MainActivity.instance.get().Log("onDestroy");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             stopForeground(true);
         }
@@ -217,13 +217,13 @@ public class SdlService extends Service {
     }
 
     public void startProxy() {
-        MainActivity.instance.get().Log("SDL Service::startProxy");
+        MainActivity.instance.get().Log("startProxy");
 
         final String appId = MainActivity.instance.get().getAppID();
         setAppID(appId);
 
         if (false == MainActivity.instance.get().isAppIDEntered()) {
-            MainActivity.instance.get().Log("SDL Service::AppID is not entered !!!");
+            MainActivity.instance.get().Log("AppID is not entered !!!");
             MainActivity.instance.get().Log("Restart Application and Enter AppID!!!");
             return;
         }
@@ -231,7 +231,7 @@ public class SdlService extends Service {
         final String ipAddress = MainActivity.instance.get().getIPAddress();
         setIP(ipAddress);
         if ("TCP" == transportType() && !isIPEntered()) {
-            MainActivity.instance.get().Log("SDL Service:: IP address is not entered !!!");
+            MainActivity.instance.get().Log("IP address is not entered !!!");
             MainActivity.instance.get().Log("Restart Application and Enter IP!!!");
             return;
         }
@@ -299,7 +299,7 @@ public class SdlService extends Service {
                             try {
                                 Log.i(TAG, "ON System Capabilities UPDATED: " + command.serializeJSON().toString());
                                 MainActivity.instance.get().Log("OnSystemCapabilityUpdated:\n");
-                                MainActivity.instance.get().Log(command.serializeJSON().toString());
+                                MainActivity.instance.get().Log(command.serializeJSON().toString() + "\n");
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -372,7 +372,7 @@ public class SdlService extends Service {
                 SendLocation sendLocationRequest = (SendLocation) request;
                 try {
                     Log.i(TAG, "SL REQUEST: " + sendLocationRequest.serializeJSON().toString());
-                    MainActivity.instance.get().Log("SDL Service::Incoming SendLocation Request: " + sendLocationRequest.serializeJSON().toString());
+                    MainActivity.instance.get().Log("Incoming SL Request: " + sendLocationRequest.serializeJSON().toString() + "\n");
 
                     // prepare response
                     SendLocationResponse sendLocationResponse = new SendLocationResponse();
@@ -382,7 +382,7 @@ public class SdlService extends Service {
 
                     sdlManager.sendRPC(sendLocationResponse);
                     Log.i(TAG, "SL RESPONSE: " + sendLocationResponse.serializeJSON().toString());
-                    MainActivity.instance.get().Log("SL Response:\n " + sendLocationResponse.serializeJSON().toString());
+                    MainActivity.instance.get().Log("SL Response:\n " + sendLocationResponse.serializeJSON().toString() + "\n");
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -400,7 +400,7 @@ public class SdlService extends Service {
                 ButtonPress buttonPressRequest = (ButtonPress) request;
                 try {
                     Log.i(TAG, "BP REQUEST: " + buttonPressRequest.serializeJSON().toString());
-                    MainActivity.instance.get().Log("SDL Service::Incoming ButtonPress Request: " + buttonPressRequest.serializeJSON().toString());
+                    MainActivity.instance.get().Log("Incoming BP Request:\n" + buttonPressRequest.serializeJSON().toString() + "\n");
 
                     // prepare response
                     ButtonPressResponse buttonPressResponse = new ButtonPressResponse();
@@ -410,7 +410,7 @@ public class SdlService extends Service {
 
                     sdlManager.sendRPC(buttonPressResponse);
                     Log.i(TAG, "BP RESPONSE: " + buttonPressResponse.serializeJSON().toString());
-                    MainActivity.instance.get().Log("BP Response:\n " + buttonPressResponse.serializeJSON().toString());
+                    MainActivity.instance.get().Log("BP Response:\n" + buttonPressResponse.serializeJSON().toString() + "\n");
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -428,7 +428,7 @@ public class SdlService extends Service {
                 MainActivity.instance.get().Log("Perform App Services Interaction Request Listener is SET");
                 try {
                     Log.i(TAG, "PASI REQUEST: " + performAppServiceInteraction.serializeJSON().toString());
-                    MainActivity.instance.get().Log("SDL Service::Incoming PASI REQUEST:\n " + performAppServiceInteraction.serializeJSON().toString());
+                    MainActivity.instance.get().Log("Incoming PASI REQUEST:\n " + performAppServiceInteraction.serializeJSON().toString() + "\n");
                     serviceID = performAppServiceInteraction.getServiceID();
                     Log.i(TAG, "Service ID: " + serviceID);
                     PerformAppServiceInteractionResponse performAppServiceInteractionResponse = new PerformAppServiceInteractionResponse();
@@ -439,7 +439,7 @@ public class SdlService extends Service {
                     performAppServiceInteractionResponse.setResultCode(Result.SUCCESS);
                     sdlManager.sendRPC(performAppServiceInteractionResponse);
                     Log.i(TAG, "PASI RESPONSE: " + performAppServiceInteractionResponse.serializeJSON().toString());
-                    MainActivity.instance.get().Log("SDL Service::PASI RESPONSE:\n " + performAppServiceInteractionResponse.serializeJSON().toString());
+                    MainActivity.instance.get().Log("PASI RESPONSE:\n " + performAppServiceInteractionResponse.serializeJSON().toString() + "\n");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -457,7 +457,7 @@ public class SdlService extends Service {
 
                 try {
                     Log.i(TAG, "OASD NOTIFICATION: " + command.serializeJSON().toString());
-                    MainActivity.instance.get().Log("OASD NOTIFICATION:\n " + command.serializeJSON().toString());
+                    MainActivity.instance.get().Log("OASD NOTIFICATION:\n " + command.serializeJSON().toString() + "\n");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -475,10 +475,9 @@ public class SdlService extends Service {
 
                 try {
                     Log.i(TAG, "GASD REQUEST: " + getAppServiceData.serializeJSON().toString());
-                    MainActivity.instance.get().Log("SDL Service::Incoming GetAppServiceData Request: " + getAppServiceData.serializeJSON().toString());
+                    MainActivity.instance.get().Log("Incoming GetAppServiceData Request:\n" + getAppServiceData.serializeJSON().toString() + "\n");
                     // prepare response
                     Log.i(TAG, "Service ID: " + serviceID);
-                    MainActivity.instance.get().Log("Service ID: " + serviceID);
 
                     Boolean subscribe = getAppServiceData.getSubscribe();
 
@@ -502,7 +501,7 @@ public class SdlService extends Service {
                         onAppServiceDataNotification();
                     }
                     Log.i(TAG, "GASD RESPONSE: " + getAppServiceDataResponse.serializeJSON().toString());
-                    MainActivity.instance.get().Log("GASD Response:\n " + getAppServiceDataResponse.serializeJSON().toString());
+                    MainActivity.instance.get().Log("GASD Response:\n " + getAppServiceDataResponse.serializeJSON().toString() + "\n");
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -512,7 +511,7 @@ public class SdlService extends Service {
     }
 
     public void publishAppServiceRequest() {
-        MainActivity.instance.get().Log("SDL Service::publishAppServiceRequest");
+        MainActivity.instance.get().Log("Sent PublishAppServiceRequest");
         AppServiceManifest asm = new AppServiceManifest();
         asm.setServiceType(AppServiceType.MEDIA.toString());
         asm.setServiceName("MediaServiceProvider");
@@ -523,10 +522,10 @@ public class SdlService extends Service {
         pas.setOnRPCResponseListener(new OnRPCResponseListener() {
             @Override
             public void onResponse(int correlationId, RPCResponse response) {
-                MainActivity.instance.get().Log("SDL Service::publishAppServiceResponse:\n");
+                MainActivity.instance.get().Log("Received PublishAppServiceResponse:\n");
                 try {
                     Log.i(TAG, "PAS RESPONSE : " + response.serializeJSON().toString());
-                    MainActivity.instance.get().Log(response.serializeJSON().toString());
+                    MainActivity.instance.get().Log(response.serializeJSON().toString() + "\n");
                     PublishAppServiceResponse publishAppServiceResponse = (PublishAppServiceResponse) response;
                     AppServiceRecord appServiceRecord = publishAppServiceResponse.getServiceRecord();
                     Log.i(TAG, "App service record: " + appServiceRecord.serializeJSON().toString());
@@ -551,7 +550,7 @@ public class SdlService extends Service {
     }
 
     public void onAppServiceDataNotification() {
-        MainActivity.instance.get().Log("SDL Service::onAppServiceDataNotification");
+        MainActivity.instance.get().Log("Sent OnAppServiceDataNotification: \n");
         MediaServiceData mediaServiceData = new MediaServiceData();
         mediaServiceData.setMediaTitle("YABA A DABA DOO REMIX");
 
@@ -565,7 +564,7 @@ public class SdlService extends Service {
 
         try {
             Log.i(TAG, "Sent OASD Notification: " + onAppServiceData.serializeJSON().toString());
-            MainActivity.instance.get().Log(onAppServiceData.serializeJSON().toString());
+            MainActivity.instance.get().Log(onAppServiceData.serializeJSON().toString() + "\n");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -573,7 +572,7 @@ public class SdlService extends Service {
     }
 
     private void getFileRequest(String appServiceID, String filename) {
-        MainActivity.instance.get().Log("SDL Service::getFileRequest" + "AppServiceID: " + appServiceID + " Filename: " + filename);
+        MainActivity.instance.get().Log("getFileRequest" + "AppServiceID: " + appServiceID + " Filename: " + filename);
         final GetFile getFileRequest = new GetFile();
         getFileRequest.setFileName(filename);
         getFileRequest.setAppServiceId(appServiceID);
@@ -601,7 +600,7 @@ public class SdlService extends Service {
     }
 
     public void buttonPressRequest() {
-        MainActivity.instance.get().Log("SDL Service::buttonPressRequest");
+        MainActivity.instance.get().Log("Sent ButtonPressRequest");
         ButtonPress buttonPress = new ButtonPress();
         buttonPress.setButtonPressMode(ButtonPressMode.LONG);
         buttonPress.setButtonName(ButtonName.PRESET_1);
@@ -611,7 +610,7 @@ public class SdlService extends Service {
             public void onResponse(int correlationId, RPCResponse response) {
 
                 try {
-                    MainActivity.instance.get().Log("SDL Service::buttonPressResponse:\n" + response.serializeJSON().toString());
+                    MainActivity.instance.get().Log("Received ButtonPress Response:\n" + response.serializeJSON().toString() + "\n");
                     Log.i(TAG, "BP RESPONSE : " + response.serializeJSON().toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -632,7 +631,7 @@ public class SdlService extends Service {
     }
 
     public void sendLocationRequest() {
-        MainActivity.instance.get().Log("SDL Service::sendLocationRequest");
+        MainActivity.instance.get().Log("Sent SendLocation Request");
         SendLocation sendLocation = new SendLocation();
         // Set test coordinates
         sendLocation.setLatitudeDegrees(38.8951);
@@ -643,7 +642,7 @@ public class SdlService extends Service {
             public void onResponse(int correlationId, RPCResponse response) {
                 try {
                     Log.i(TAG, "SL RESPONSE : " + response.serializeJSON().toString());
-                    MainActivity.instance.get().Log("SDL Service::sendLocationResponse:\n" + response.serializeJSON().toString());
+                    MainActivity.instance.get().Log("Received SendLocation Response:\n" + response.serializeJSON().toString() + "\n");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -658,7 +657,7 @@ public class SdlService extends Service {
     }
 
     public void performAppServicesInteraction() {
-        MainActivity.instance.get().Log("SDL Service::performAppServicesInteraction Request");
+        MainActivity.instance.get().Log("Sent PerformAppServicesInteraction Request");
         PerformAppServiceInteraction performAppServiceInteraction = new PerformAppServiceInteraction();
         performAppServiceInteraction.setServiceID(serviceID);
         performAppServiceInteraction.setRequestServiceActive(true);
@@ -667,10 +666,10 @@ public class SdlService extends Service {
         performAppServiceInteraction.setOnRPCResponseListener(new OnRPCResponseListener() {
             @Override
             public void onResponse(int correlationId, RPCResponse response) {
-                MainActivity.instance.get().Log("SDL Service::performAppServicesInteraction Response");
+                MainActivity.instance.get().Log("Received PerformAppServicesInteraction Response:\n");
                 try {
                     Log.i(TAG, "PASI RESPONSE : " + response.serializeJSON().toString());
-                    MainActivity.instance.get().Log(response.serializeJSON().toString());
+                    MainActivity.instance.get().Log(response.serializeJSON().toString() + "\n");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -685,24 +684,20 @@ public class SdlService extends Service {
     }
 
     public void getAppServiceDataRequest() {
-        MainActivity.instance.get().Log("SDL Service::getAppServiceDataRequest");
+        MainActivity.instance.get().Log("Sent GetAppServiceData Request:\n");
         GetAppServiceData getAppServiceData = new GetAppServiceData(AppServiceType.MEDIA.toString());
         getAppServiceData.setSubscribe(true);
         getAppServiceData.setOnRPCResponseListener(new OnRPCResponseListener() {
             @Override
             public void onResponse(int correlationId, RPCResponse response) {
-                MainActivity.instance.get().Log("Received GASD Response");
                 try {
-                    MainActivity.instance.get().Log("SDL Service::getAppServiceData Response:\n" + response.serializeJSON().toString());
+                    MainActivity.instance.get().Log("Received GetAppServiceData Response:\n" + response.serializeJSON().toString() + "\n");
                     Log.i(TAG, "GASD RESPONSE : " + response.serializeJSON().toString());
 
                     final JSONObject fullResponse = response.serializeJSON().getJSONObject("response");
                     final JSONObject responseParameters = fullResponse.getJSONObject("parameters");
                     final JSONObject serviceData = responseParameters.getJSONObject("serviceData");
                     serviceID = serviceData.getString("serviceID");
-
-                    MainActivity.instance.get().Log("ServiceID: " + serviceID);
-
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -732,7 +727,7 @@ public class SdlService extends Service {
      * Add commands for the app on SDL.
      */
     private void sendCommands() {
-        MainActivity.instance.get().Log("SDL Service::sendCommands");
+        MainActivity.instance.get().Log("sendCommands");
         AddCommand command = new AddCommand();
         MenuParams params = new MenuParams();
         params.setMenuName(TEST_COMMAND_NAME);
@@ -746,7 +741,7 @@ public class SdlService extends Service {
      * Will speak a sample welcome message
      */
     private void performWelcomeSpeak() {
-        MainActivity.instance.get().Log("SDL Service::Speak");
+        MainActivity.instance.get().Log("Speak");
         sdlManager.sendRPC(new Speak(TTSChunkFactory.createSimpleTTSChunks(WELCOME_SPEAK)));
     }
 
@@ -756,7 +751,7 @@ public class SdlService extends Service {
      * and finish with commit() when we are done.
      */
     private void performWelcomeShow() {
-        MainActivity.instance.get().Log("SDL Service::Show");
+        MainActivity.instance.get().Log("Show");
         sdlManager.getScreenManager().beginTransaction();
         sdlManager.getScreenManager().setTextField1(APP_NAME);
         sdlManager.getScreenManager().setTextField2(WELCOME_SHOW);
