@@ -4,17 +4,21 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +48,43 @@ public class MainActivity extends AppCompatActivity implements OnItemSelectedLis
         spinner.setOnItemSelectedListener(this);
         setAllButtonsEnabled(false);
         Log("MainActivity::onCreate");
+
+        Log("Current version: " + currentVersion());
+        final double release = Double.parseDouble(Build.VERSION.RELEASE.replaceAll("(\\d+[.]\\d+)(.*)", "$1"));
+        if (currentVersion().equals("Unsupported")) {
+            showIncompatibleWarning();
+            final Button startProxy = (Button) findViewById(R.id.startProxy);
+            startProxy.setEnabled(false);
+        }
+    }
+
+    //Current Android version data
+    public static String currentVersion() {
+        double release = Double.parseDouble(Build.VERSION.RELEASE.replaceAll("(\\d+[.]\\d+)(.*)", "$1"));
+        String codeName = ""; // below Jelly bean OR above Oreo
+        if (release < 5) codeName = "Unsupported";
+        else if (5 <= release && release < 6) codeName = "Lollipop";
+        else if (6 <= release && release < 7) codeName = "Marshmallow";
+        else if (7 <= release && release < 8) codeName = "Nougat";
+        else if (8 <= release && release < 9) codeName = "Oreo";
+        else if (9 <= release && release < 10) codeName = "Pie";
+        return codeName;
+    }
+
+    //Required Android version data
+    public static String requiredVersion() {
+        return "\nRequired version: Any version higher than 4.4.4";
+    }
+
+
+    public void showIncompatibleWarning() {
+        Toast toast = Toast.makeText(MainActivity.this, "INCOMPATIBLE Android OS: " + currentVersion() + requiredVersion(), Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        LinearLayout toastImage = (LinearLayout) toast.getView();
+        ImageView imageView = new ImageView(MainActivity.this);
+        imageView.setImageResource(R.drawable.image);
+        toastImage.addView(imageView, 0);
+        toast.show();
     }
 
     public void Log(String text) {

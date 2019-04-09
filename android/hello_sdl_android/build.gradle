@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.sdl.app_services_consumer"
-        minSdkVersion 14
+        minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -17,7 +17,7 @@ android {
         }
     }
     flavorDimensions "default"
-    productFlavors{
+    productFlavors {
         multi_sec_high {
             buildConfigField 'String', 'TRANSPORT', '"MULTI"'
             buildConfigField 'String', 'SECURITY', '"HIGH"'
@@ -41,6 +41,7 @@ android {
         tcp {
             buildConfigField 'String', 'TRANSPORT', '"TCP"'
             buildConfigField 'String', 'SECURITY', '"OFF"'
+            minSdkVersion 21
         }
     }
     lintOptions {
@@ -50,7 +51,7 @@ android {
 
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })

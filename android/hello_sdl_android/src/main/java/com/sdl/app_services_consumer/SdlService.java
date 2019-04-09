@@ -64,6 +64,7 @@ import com.smartdevicelink.transport.TCPTransportConfig;
 import com.smartdevicelink.util.DebugTool;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -690,9 +691,19 @@ public class SdlService extends Service {
         getAppServiceData.setOnRPCResponseListener(new OnRPCResponseListener() {
             @Override
             public void onResponse(int correlationId, RPCResponse response) {
+                MainActivity.instance.get().Log("Received GASD Response");
                 try {
-                    Log.i(TAG, "GASD RESPONSE : " + response.serializeJSON().toString());
                     MainActivity.instance.get().Log("SDL Service::getAppServiceData Response:\n" + response.serializeJSON().toString());
+                    Log.i(TAG, "GASD RESPONSE : " + response.serializeJSON().toString());
+
+                    final JSONObject fullResponse = response.serializeJSON().getJSONObject("response");
+                    final JSONObject responseParameters = fullResponse.getJSONObject("parameters");
+                    final JSONObject serviceData = responseParameters.getJSONObject("serviceData");
+                    serviceID = serviceData.getString("serviceID");
+
+                    MainActivity.instance.get().Log("ServiceID: " + serviceID);
+
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -702,7 +713,8 @@ public class SdlService extends Service {
             public void onError(int correlationId, Result resultCode, String info) {
                 Log.i(TAG, "GASD RESPONSE ERROR: " + info + " result code: " + resultCode.toString() + " CID: " + String.valueOf(correlationId));
             }
-        });;
+        });
+        ;
         sdlManager.sendRPC(getAppServiceData);
     }
 
