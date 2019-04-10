@@ -19,6 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.view.WindowManager;
 
 import com.smartdevicelink.proxy.rpc.enums.AppHMIType;
 
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements OnItemSelectedLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         instance = new WeakReference<MainActivity>(this);
         spinner = (Spinner) findViewById(R.id.spinner1);
         // Spinner click listener
